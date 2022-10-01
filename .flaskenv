@@ -1,1 +1,1 @@
-FLASK_APP=anjawebhooks.py
+FLASK_APP=app.py
