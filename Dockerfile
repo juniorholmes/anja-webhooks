@@ -11,7 +11,7 @@ RUN venv/bin/pip install gunicorn pymysql cryptography
 
 COPY app app
 COPY migrations migrations
-COPY anjawebhooks.py config.py boot.sh ./
+COPY app.py config.py boot.sh ./
 RUN chmod a+x boot.sh
 
 ENV FLASK_APP microblog.py
