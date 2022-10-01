@@ -3,7 +3,6 @@ aiodns==3.0.0
 aiohttp==3.8.1
 aiosignal==1.2.0
 altgraph==0.17.3
--e git+git@github.com:juniorholmes/anja-webhooks.git@074872977bfaba5841797272ef0b80a3c9926cf8#egg=anjaWebhooks
 antlr4-python3-runtime==4.9.3
 anyio==3.6.1
 appdirs==1.4.4
