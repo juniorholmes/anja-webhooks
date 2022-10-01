@@ -1,23 +1,20 @@
-FROM python:slim
+# start by pulling the python image
+FROM python:3.6-slim
 
-RUN useradd anjawebhooks
+# copy the requirements file into the image
+COPY ./requirements.txt /app/requirements.txt
 
-WORKDIR /home/anjawebhooks
+# switch working directory
+WORKDIR /app
 
-COPY requirements.txt requirements.txt
-RUN python -m venv venv
-RUN venv/bin/pip install -r requirements.txt
-RUN venv/bin/pip install gunicorn pymysql cryptography
+# install the dependencies and packages in the requirements file
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
-COPY app app
-COPY migrations migrations
-COPY app.py config.py boot.sh ./
-RUN chmod a+x boot.sh
+# copy every content from the local file to the image
+COPY . /app
 
-ENV FLASK_APP microblog.py
+# configure the container to run in an executed manner
+ENTRYPOINT [ "python" ]
 
-RUN chown -R anjawebhooks:anjawebhooks ./
-USER anjawebhooks
-
-EXPOSE 5000
-ENTRYPOINT ["./boot.sh"]
+CMD ["app.py" ]
