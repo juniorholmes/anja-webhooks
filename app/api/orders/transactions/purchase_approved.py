@@ -15,7 +15,7 @@ def purchaseApproved(platform):
 
         if request.json['status'] == 'approved':
 
-            transaction = createTransactionObject('hotmart', request)
+            transaction = createTransactionObject(platform, request)
             sendSaleNotification(transaction)
 
             return Response(jsonify({'success': True}), 200)

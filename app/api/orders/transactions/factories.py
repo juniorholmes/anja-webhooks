@@ -24,9 +24,33 @@ def parseHotmartRequest(request):
 
 
 
+def parseGuruRequest(request):
+
+            platform = 'guru'
+            currency = 'BRL'
+            transactionCode = request.json['invoice']['id']
+            paymentType = request.json['payment']['method']
+            status = request.json['status']
+            customerName = request.json['contact']['name']
+            orderBump = False
+            customerEmail = request.json['contact']['email']
+            productName = request.json['product']['name']
+            productPrice = request.json['payment']['gross']
+            sck = request.json['sck']
+
+            customerPhone = request.json['contact']['phone_number']
+
+            return Transaction(transactionCode, currency, platform, paymentType, status, customerName,
+                           customerEmail, customerPhone, productName, productPrice, orderBump, sck)
+
+
 def createTransactionObject(origin, request):
 
     if origin == 'hotmart':
 
         return parseHotmartRequest(request)
 
+
+    elif origin == 'guru':
+
+        return parseGuruRequest(request)

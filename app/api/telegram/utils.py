@@ -35,6 +35,7 @@ def sendSaleNotification(transaction):
 
     notificationMessageHtml = '\U00002747 <b>VENDA REALIZADA!</b>\r\n\r\n'
     notificationMessageHtml += '<b>Produto:</b>' + transaction.product['name'] + '\r\n'
+    notificationMessageHtml += '<b>Plataforma:</b> ' + transaction.platform + '\r\n'
     notificationMessageHtml += '<b>Comprador:</b> ' + transaction.customer['name'] + '\r\n'
     notificationMessageHtml += '<b>E-mail:</b> ' + transaction.customer['email'] + '\r\n'
     notificationMessageHtml += '<b>Código da transação:</b> ' + transaction.code + '\r\n'
@@ -43,11 +44,12 @@ def sendSaleNotification(transaction):
     notificationMessageHtml += '<b>Valor:</b> ' + str(babel.numbers.format_currency( decimal.Decimal( transaction.offer['price'] ), transaction.currency )) + '\r\n'
 
     if(transaction.currency != 'BRL'):
-        notificationMessageHtml += '<b>(aproximadamente' + currencyConverter.convert(transaction.offer['price'], transaction.currency, 'BLR') + '</b>\r\n'
+        notificationMessageHtml += '<b>(aproximadamente ' + str(babel.numbers.format_currency(currencyConverter.convert(transaction.offer['price'], transaction.currency, 'BRL'), 'BRL')) + ')</b>\r\n'
 
     notificationMessageHtml += '<b>Telefone:</b> ' + transaction.customer['mobile_phone']
 
     telegramResponse = tel_send_message('-1001447351738', notificationMessageHtml)
+
     return telegramResponse
 
 
