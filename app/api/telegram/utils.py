@@ -1,3 +1,4 @@
+from currency_converter import CurrencyConverter
 from flask import Flask
 from flask import request
 from flask import Response
@@ -6,6 +7,8 @@ from flask import make_response
 import locale
 import requests
 import babel.numbers, decimal
+
+currencyConverter = CurrencyConverter()
 
 TOKEN = '5686796450:AAG4H8N1ua04f2SDOmQg5CZCdNwAAz9r7II'
 
@@ -38,6 +41,10 @@ def sendSaleNotification(transaction):
     notificationMessageHtml += '<b>Método de pagamento</b>: ' + paymentTypeFormatted + '\r\n'
     notificationMessageHtml += '<b>Moeda</b>: ' + transaction.currency + '\r\n'
     notificationMessageHtml += '<b>Valor:</b> ' + str(babel.numbers.format_currency( decimal.Decimal( transaction.offer['price'] ), transaction.currency )) + '\r\n'
+
+    if(transaction.currency != 'BRL'):
+        notificationMessageHtml += '<b>(aproximadamente' + currencyConverter.convert(transaction.offer['price'], transaction.currency, 'BLR') + '</b>\r\n'
+
     notificationMessageHtml += '<b>Telefone:</b> ' + transaction.customer['mobile_phone']
 
     telegramResponse = tel_send_message('-1001447351738', notificationMessageHtml)

@@ -1,5 +1,6 @@
 from flask import jsonify, request, url_for, abort, Response, jsonify, make_response
 import json
+import phonenumbers
 
 from app.models.orders.transaction import Transaction
 from app.api.telegram.utils import sendSaleNotification
@@ -9,14 +10,13 @@ from app.api.errors import bad_request
 
 from app.api.orders.transactions.factories import createTransactionObject
 
-@bp.route('/orders/transactions/purchase_approved/<platform>', methods=['GET', 'POST'])
+@bp.route('/orders/transactions/abandoned_cart/<platform>', methods=['GET', 'POST'])
 def purchaseApproved(platform):
     if request.method == 'POST':
 
         if request.json['status'] == 'approved':
 
-            transaction = createTransactionObject('hotmart', request)
-            sendSaleNotification(transaction)
+            sendSaleNotification(createTransactionObject(platform, request))
 
             return Response(jsonify({'success': True}), 200)
 
