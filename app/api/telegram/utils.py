@@ -1,12 +1,48 @@
-from flask import jsonify, request, url_for, abort, Response
-from app.api import bp
-from app.api.errors import bad_request
+from flask import Flask
+from flask import request
+from flask import Response
+from flask import jsonify
+from flask import make_response
+import locale
+import requests
+import babel.numbers, decimal
 
-anjaModeratorBotToken = '5679408218:AAFaEL5SL7b17dIGcPgJQfzQ3faJSAfAlXo'
+TOKEN = '5686796450:AAG4H8N1ua04f2SDOmQg5CZCdNwAAz9r7II'
 
-groupsIds = dict()
-groupsIds['adr'] = ''
-groupsIds['totalBlues'] = '-1001638158841'
+def sendSaleNotification(transaction):
+
+    paymentTypeFormatted = ''
+    if transaction.paymentType == 'credit_card':
+        paymentTypeFormatted = 'Cartão de crédito'
+    elif transaction.paymentType == 'paypal':
+        paymentTypeFormatted = 'Paypal'
+    elif transaction.paymentType == 'balance_hotmart':
+        paymentTypeFormatted = 'Saldo da Hotmart'
+    elif transaction.paymentType == 'picpay':
+        paymentTypeFormatted = 'PicPay'
+    elif transaction.paymentType == 'billet':
+        paymentTypeFormatted == 'Boleto bancário'
+    elif transaction.paymentType == 'samsung_pay':
+        paymentTypeFormatted = 'Samsung Pay'
+    elif transaction.paymentType == 'google_pay':
+        paymentTypeFormatted = 'Google Pay'
+    else:
+        paymentTypeFormatted = 'Outros'
+
+
+    notificationMessageHtml = '\U00002747 <b>VENDA REALIZADA!</b>\r\n\r\n'
+    notificationMessageHtml += '<b>Produto:</b>' + transaction.product['name'] + '\r\n'
+    notificationMessageHtml += '<b>Comprador:</b> ' + transaction.customer['name'] + '\r\n'
+    notificationMessageHtml += '<b>E-mail:</b> ' + transaction.customer['email'] + '\r\n'
+    notificationMessageHtml += '<b>Código da transação:</b> ' + transaction.code + '\r\n'
+    notificationMessageHtml += '<b>Método de pagamento</b>: ' + paymentTypeFormatted + '\r\n'
+    notificationMessageHtml += '<b>Moeda</b>: ' + transaction.currency + '\r\n'
+    notificationMessageHtml += '<b>Valor:</b> ' + str(babel.numbers.format_currency( decimal.Decimal( transaction.offer['price'] ), transaction.currency )) + '\r\n'
+    notificationMessageHtml += '<b>Telefone:</b> ' + transaction.customer['mobile_phone']
+
+    telegramResponse = tel_send_message('-1001447351738', notificationMessageHtml)
+    return telegramResponse
+
 
 def tel_parse_message(message):
     print("message-->", message)
@@ -46,7 +82,7 @@ def tel_send_support_urls(chat_id):
         },
         'parse_mode': 'HTML'
     }
-    r = request.post(url, json=payload)
+    r = requests.post(url, json=payload)
     return r
 
 def tel_send_message(chat_id, text):
@@ -58,8 +94,9 @@ def tel_send_message(chat_id, text):
                 'parse_mode': 'HTML'
                 }
 
-    r = request.post(url,json=payload)
-    return r
+    return requests.post(url,json=payload)
+
+
 
 def tel_send_select_group_button(chat_id):
     url = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
@@ -85,28 +122,5 @@ def tel_send_select_group_button(chat_id):
             ]
         }
     }
-    r = request.post(url, json=payload)
+    r = requests.post(url, json=payload)
     return r
-
-
-@bp.route('/bots/telegram/anja_moderator', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        msg = request.get_json()
-
-        chat_id,txt = tel_parse_message(msg)
-
-        if txt == '/msg_suporte':
-            tel_send_select_group_button(chat_id)
-        elif "send_msg_support" in txt:
-            groupId = txt.split('.')[1]
-
-            print(tel_send_message(chat_id, '<b>Opa! Precisa de ajuda ou suporte técnico sobre algum assunto relacionado ao curso?</b>\n\nFique tranquilo! Nossa equipe técnica vai te ajudar!'))
-            tel_send_support_urls(chat_id)
-            tel_send_message(chat_id, '<i>Lembrando que nosso suporte funciona em <b>horário comercial</b> e qualquer mensagem relacionada à este assunto deve ser enviada em dos meios de contato acima, ok?</i><br />Obrigado!')
-
-
-        return Response('ok', status=200)
-    else:
-        return Response('Método não suportado')
-   
